@@ -1,7 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { ReactComponent as SuiLogo } from '../../assets/Sui Logo.svg';
+import { ReactComponent as SuiWordmark } from '../../assets/SuiWordmark.svg';
 import NetworkSelect from '../network/Network';
 import Search from '../search/Search';
 
@@ -11,9 +11,9 @@ function Header() {
     return (
         <header className="relative z-20 h-header overflow-visible bg-headerNav">
             <div className="mx-auto flex h-full max-w-[1440px] items-center px-5 2xl:p-0">
-                <div className="mr-8">
+                <div className="mr-8 text-white">
                     <LinkWithQuery data-testid="nav-logo-button" to="/">
-                        <SuiLogo />
+                        <SuiWordmark className="h-6" />
                     </LinkWithQuery>
                 </div>
 
