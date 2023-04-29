@@ -37,9 +37,10 @@ export function TransactionsCard({ transactions }: TransactionsCardProps) {
     return (
         <TransactionCard collapsible title="Transactions">
             <ExpandableList
+                contentWrapperClassName="max-h-[400px] gap-6"
                 items={expandableItems}
                 defaultItemsToShow={defaultItemsToShow}
-                itemsLabel="Transactions"
+                itemsLabel="Inputs"
             />
         </TransactionCard>
     );

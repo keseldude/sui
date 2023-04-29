@@ -23,7 +23,6 @@ export function InputsCard({ inputs }: InputsCardProps) {
 
     const expandableItems = inputs.map((input, index) => {
         const inputTitle = `Input ${index}`;
-        const inputEntries = Object.entries(input);
 
         return (
             <TransactionCardSection
@@ -32,14 +31,12 @@ export function InputsCard({ inputs }: InputsCardProps) {
                 collapsedOnLoad={collapsedThreshold}
             >
                 <div className="flex flex-col gap-3">
-                    {inputEntries.map(([key, value]) => {
+                    {Object.entries(input).map(([key, value]) => {
                         let renderValue;
                         const stringValue = String(value);
 
                         if (key === 'mutable') {
                             renderValue = String(value);
-                        } else if (regNumber.test(stringValue)) {
-                            renderValue = Number(value).toLocaleString();
                         } else if (key === 'objectId') {
                             renderValue = <ObjectLink objectId={stringValue} />;
                         } else if (
@@ -49,6 +46,8 @@ export function InputsCard({ inputs }: InputsCardProps) {
                             key === 'value'
                         ) {
                             renderValue = <AddressLink address={stringValue} />;
+                        } else if (regNumber.test(stringValue)) {
+                            renderValue = Number(value).toLocaleString();
                         } else {
                             renderValue = stringValue;
                         }
@@ -82,6 +81,7 @@ export function InputsCard({ inputs }: InputsCardProps) {
     return (
         <TransactionCard collapsible title="Inputs">
             <ExpandableList
+                contentWrapperClassName="max-h-[400px] gap-6"
                 items={expandableItems}
                 defaultItemsToShow={defaultItemsToShow}
                 itemsLabel="Inputs"

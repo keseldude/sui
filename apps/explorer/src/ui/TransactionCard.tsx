@@ -44,11 +44,9 @@ export function TransactionCardSection({
                     )}
                     <Divider />
                     <ChevronRight12
-                        height={12}
-                        width={12}
                         className={clsx(
-                            'cursor-pointer text-gray-45',
-                            !expanded && 'rotate-90'
+                            'h-4 w-4 cursor-pointer text-gray-45',
+                            expanded && 'rotate-90'
                         )}
                     />
                 </div>
@@ -106,16 +104,20 @@ export function TransactionCard({
                                 isExpanded && 'mb-6'
                             )}
                         >
-                            <Heading
-                                variant={
-                                    size === 'md'
-                                        ? 'heading4/semibold'
-                                        : 'heading6/semibold'
-                                }
-                                color="steel-darker"
-                            >
-                                {title}
-                            </Heading>
+                            {typeof title === 'string' ? (
+                                <Heading
+                                    variant={
+                                        size === 'md'
+                                            ? 'heading4/semibold'
+                                            : 'heading6/semibold'
+                                    }
+                                    color="steel-darker"
+                                >
+                                    {title}
+                                </Heading>
+                            ) : (
+                                title
+                            )}
 
                             {collapsible && (
                                 <ChevronRight16

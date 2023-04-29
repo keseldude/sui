@@ -235,7 +235,7 @@ export function TransactionData({ transaction }: Props) {
                                 </DescriptionItem>
 
                                 <div className="mt-2 flex flex-col gap-2 rounded-xl border border-success px-4 py-2 md:flex-row md:items-center md:gap-4">
-                                    <div className="w-full md:w-50">
+                                    <div className="w-full md:w-40">
                                         <Text
                                             variant="pBody/semibold"
                                             color="success-dark"

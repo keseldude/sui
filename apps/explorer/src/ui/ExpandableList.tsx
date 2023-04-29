@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ChevronRight12 } from '@mysten/icons';
+import clsx from 'clsx';
 import { type ReactNode, useMemo, useState } from 'react';
 
 import { Link } from './Link';
@@ -11,12 +12,14 @@ interface ExpandableListProps {
     items: ReactNode[];
     defaultItemsToShow: number;
     itemsLabel?: string;
+    contentWrapperClassName?: string;
 }
 
 export function ExpandableList({
     items,
     defaultItemsToShow,
     itemsLabel,
+    contentWrapperClassName,
 }: ExpandableListProps) {
     const [showAll, setShowAll] = useState(false);
 
@@ -37,21 +40,35 @@ export function ExpandableList({
             : 'Show All';
     }
 
+    const renderItemsDisplayed = itemsDisplayed.map((item, index) => (
+        <div key={index}>{item}</div>
+    ));
+
     return (
         <>
-            {itemsDisplayed.map((item, index) => (
-                <div key={index}>{item}</div>
-            ))}
+            {contentWrapperClassName && items.length > defaultItemsToShow ? (
+                <div
+                    className={clsx(
+                        'flex flex-col overflow-y-auto',
+                        contentWrapperClassName
+                    )}
+                >
+                    {renderItemsDisplayed}
+                </div>
+            ) : (
+                renderItemsDisplayed
+            )}
             {items.length > defaultItemsToShow && (
-                <div className="mt-4 flex cursor-pointer items-center gap-1 text-steel hover:text-steel-dark">
+                <div className="flex cursor-pointer items-center gap-1 text-steel hover:text-steel-dark">
                     <Link
                         variant="text"
                         onClick={handleShowAllClick}
                         after={
                             <ChevronRight12
-                                height={12}
-                                width={12}
-                                className={showAll ? 'rotate-90' : ''}
+                                className={clsx(
+                                    'h-3 w-3',
+                                    showAll ? 'rotate-90' : ''
+                                )}
                             />
                         }
                     >

@@ -10,6 +10,7 @@ import {
 import clsx from 'clsx';
 import { useState } from 'react';
 
+import { ExpandableList } from '~/ui/ExpandableList';
 import { AddressLink, ObjectLink } from '~/ui/InternalLink';
 import { Link } from '~/ui/Link';
 import { Text } from '~/ui/Text';
@@ -18,7 +19,6 @@ import { TransactionCard, TransactionCardSection } from '~/ui/TransactionCard';
 enum Labels {
     created = 'Created',
     mutated = 'Updated',
-    minted = 'Mint',
     transferred = 'Transfer',
 }
 
@@ -34,6 +34,10 @@ enum LocationIdType {
     Shared = 'Shared',
     Unknown = 'Unknown',
 }
+
+const contentWrapperClassName = 'max-h-[300px] gap-3';
+
+const DEFAULT_ITEMS_TO_SHOW = 5;
 
 interface ObjectChangeEntryBaseProps {
     type: keyof typeof Labels;
@@ -84,9 +88,8 @@ function ObjectDetail({
     const [expanded, setExpanded] = useState(false);
     const toggleExpand = () => setExpanded((prev) => !prev);
 
-    const regex = /^(.*?)::(.*?)::(.*)$/;
-    const [, packageId, moduleName, functionName] =
-        objectType.match(regex) ?? [];
+    const [packageId, moduleName, functionName] =
+        objectType?.split('<')[0]?.split('::') || [];
 
     const objectDetailLabels = [
         ItemLabels.package,
@@ -99,14 +102,11 @@ function ObjectDetail({
             <div className="flex justify-between">
                 <Link
                     gap="xs"
-                    variant="text"
                     onClick={toggleExpand}
                     after={
                         <ChevronRight12
-                            height={12}
-                            width={12}
                             className={clsx(
-                                'text-steel-dark',
+                                'h-4 w-4 text-steel-dark',
                                 expanded && 'rotate-90'
                             )}
                         />
@@ -118,10 +118,9 @@ function ObjectDetail({
                 </Link>
 
                 <ObjectLink objectId={objectId} />
-                {/* {minted && <NFTDetails objectId={objectId} />} */}
             </div>
             {expanded && (
-                <div className="flex flex-col gap-1">
+                <div className="mt-2 flex flex-col gap-2">
                     {objectDetailLabels.map((label) => (
                         <Item
                             key={label}
@@ -137,14 +136,14 @@ function ObjectDetail({
     );
 }
 
-interface ObjectChangeEntryProps extends ObjectChangeEntryBaseProps {
-    changeEntries: (
-        | (SuiObjectChangeMutated & { minted: boolean })
-        | (SuiObjectChangeCreated & { minted: boolean })
-    )[];
+interface ObjectChangeEntriesProps extends ObjectChangeEntryBaseProps {
+    changeEntries: (SuiObjectChangeMutated | SuiObjectChangeCreated)[];
 }
 
-function ObjectChangeEntry({ changeEntries, type }: ObjectChangeEntryProps) {
+function ObjectChangeEntries({
+    changeEntries,
+    type,
+}: ObjectChangeEntriesProps) {
     const title = Labels[type];
 
     return (
@@ -162,13 +161,18 @@ function ObjectChangeEntry({ changeEntries, type }: ObjectChangeEntryProps) {
                 </Text>
             }
         >
-            {changeEntries?.map(({ objectType, objectId }) => (
-                <ObjectDetail
-                    key={objectId}
-                    objectType={objectType}
-                    objectId={objectId}
-                />
-            ))}
+            <ExpandableList
+                contentWrapperClassName={contentWrapperClassName}
+                items={changeEntries?.map(({ objectType, objectId }) => (
+                    <ObjectDetail
+                        key={objectId}
+                        objectType={objectType}
+                        objectId={objectId}
+                    />
+                ))}
+                defaultItemsToShow={DEFAULT_ITEMS_TO_SHOW}
+                itemsLabel="Objects"
+            />
         </TransactionCardSection>
     );
 }
@@ -176,8 +180,7 @@ function ObjectChangeEntry({ changeEntries, type }: ObjectChangeEntryProps) {
 interface ObjectChangeEntryUpdatedProps extends ObjectChangeEntryBaseProps {
     data: Record<
         string,
-        SuiObjectChangeMutated[] &
-            { minted: boolean; locationIdType: LocationIdType }[]
+        SuiObjectChangeMutated[] & { locationIdType: LocationIdType }[]
     >;
 }
 
@@ -208,7 +211,7 @@ export function ObjectChangeEntryUpdated({
                         key={ownerAddress}
                         title="Changes"
                         size="sm"
-                        shadow="default"
+                        shadow
                         footer={
                             renderFooter && (
                                 <div className="flex items-center justify-between">
@@ -247,13 +250,22 @@ export function ObjectChangeEntryUpdated({
                                 </Text>
                             }
                         >
-                            {changes.map(({ objectId, objectType }) => (
-                                <ObjectDetail
-                                    key={objectId}
-                                    objectId={objectId}
-                                    objectType={objectType}
-                                />
-                            ))}
+                            <ExpandableList
+                                contentWrapperClassName={
+                                    contentWrapperClassName
+                                }
+                                items={changes.map(
+                                    ({ objectId, objectType }) => (
+                                        <ObjectDetail
+                                            key={objectId}
+                                            objectId={objectId}
+                                            objectType={objectType}
+                                        />
+                                    )
+                                )}
+                                defaultItemsToShow={DEFAULT_ITEMS_TO_SHOW}
+                                itemsLabel="Objects"
+                            />
                         </TransactionCardSection>
                     </TransactionCard>
                 );
@@ -330,9 +342,9 @@ export function ObjectChanges({ objectSummary }: ObjectChangesProps) {
     return (
         <>
             {objectSummary?.created?.length ? (
-                <TransactionCard title="Changes" size="sm" shadow="default">
+                <TransactionCard shadow title="Changes" size="sm">
                     {createdChangesData.map((data, index) => (
-                        <ObjectChangeEntry
+                        <ObjectChangeEntries
                             key={index}
                             type="created"
                             changeEntries={data}

@@ -8,6 +8,8 @@ import {
 } from '@mysten/core';
 import { Coin } from '@mysten/sui.js';
 
+import { CoinsStack } from '~/ui/CoinsStack';
+import { Heading } from '~/ui/Heading';
 import { AddressLink } from '~/ui/InternalLink';
 import { Text } from '~/ui/Text';
 import { TransactionCard, TransactionCardSection } from '~/ui/TransactionCard';
@@ -57,14 +59,26 @@ function BalanceChangeEntry({ change }: { change: BalanceChangeSummary }) {
 }
 
 export function BalanceChanges({ changes }: BalanceChangesProps) {
-    if (!changes) return null;
+    if (!changes?.length) return null;
 
     const owner = changes[0]?.owner ?? '';
+    const coinsSet = changes.reduce((set, change) => {
+        set.add(Coin.getCoinSymbol(change.coinType));
+        return set;
+    }, new Set<string>());
 
     return (
         <TransactionCard
-            title="Balance Changes"
-            shadow="default"
+            title={
+                <div className="flex w-full justify-between">
+                    <Heading variant="heading6/semibold" color="steel-darker">
+                        Balance Changes
+                    </Heading>
+
+                    <CoinsStack coinSymbols={Array.from(coinsSet)} />
+                </div>
+            }
+            shadow
             size="sm"
             footer={
                 owner ? (
